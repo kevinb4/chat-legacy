@@ -1,35 +1,47 @@
-<!doctype html>
-<html>
-  <head>
-    <title>ChatProject</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-    </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title>ChatProject</title>
+	<link href="css/chatproject.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body background="images/bg.png">
+	<div id="body">
+		<h1>Chat Project</h1>
+		<div id="chat-box">
+			<div id="chat-textarea"></div>
+		</div>
+		<br/>
+		<input id="send" class="create" type="button" onclick="" value="Send" />
+		<div id="reply-box">
+			<input type="text" contenteditable="true" id="reply" autocomplete="off" />
+		</div>
+	</div>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 	<script>
-  	var socket = io();
-  	$('form').submit(function(){
-    	socket.emit('chat message', $('#m').val());
-    $('#m').val('');
-    	return false;
-  	});
- 	 socket.on('chat message', function(msg){
-    	$('#messages').append($('<li>').text(msg));
-  	});
+	var socket = io(),
+		chatbox = $('#chat-box'),
+		reply = $('#reply'),
+		textarea = $('#chat-textarea'),
+		send = $('#send');
+	
+	socket.on('chat message', function(msg) { // When a message is emitted...
+		textarea.append(msg); // ...the message is shown in the chatbox
+		chatbox.scrollTop($(chatbox).get(0).scrollHeight); // Scroll down
+	});
+	send.click(function() { // Clicking the send button
+		socket.emit('chat message', reply.val()); // Emit the message
+		reply.val(""); // Clear the reply box
+	});
+	reply.keypress(function(e) { // Checks for keys being pressed
+		if (e.which == 13) { // Pressing Enter
+			socket.emit('chat message', reply.val()); // Emit the message
+			reply.val(""); // Clear the reply box
+		}
+	});
 	</script>
-  </body>
+</body>
+
 </html>
