@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title>ChatProject</title>
+	<link href="css/chat.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body background="images/bg.png">
+	<div id="body">
+		<div id="login">
+			<h1>Chat Project</h1>
+			<p>Please enter a username below</p>
+			<div id="username-box">
+				<input type="text" id="username" autocomplete="off" placeholder="Username" />
+			</div>
+			<input id="set" class="button" type="button" onclick="" value="Set" />
+		</div>
+		<div id="chat">
+			<h1>Chat Project</h1>
+			<div id="chat-box">
+				<div id="chat-textarea"></div>
+			</div>
+			<br/>
+			<input id="send" class="create" type="button" onclick="" value="Send" />
+			<div id="reply-box">
+				<input type="text" contenteditable="true" id="reply" autocomplete="off" placeholder="Type your message..." />
+			</div>
+		</div>
+	</div>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script src="js/chat.js"></script>
+</body>
+
+</html>
