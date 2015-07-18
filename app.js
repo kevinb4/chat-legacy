@@ -36,7 +36,7 @@ io.on('connection', function (socket) {
 		if (!socket.users) return;
 		users.splice(users.indexOf(socket.users), 1); // Remove user from list
 		console.log(server + ' User Left: ' + socket.users);
-		io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.users + ' has left<br/>');
+		io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.users + ' has left</font><br/>');
 	});
 
 	socket.on('chat message', function (msg) {
@@ -49,6 +49,20 @@ io.on('connection', function (socket) {
 				io.emit('chat message', '<b>' + socket.users + '</b>: ' + newmsg + '<br/>');
 				console.log(('[User] ').gray.bold + socket.users + ': ' + msg);
 			}
+		}
+	});
+
+	var stdin = process.stdin, stdout = process.stdout;
+
+	stdin.resume();
+	stdin.on('data', function(data) {
+		var trim = data.toString().trim();
+		if (trim == 'shutdown') {
+			io.emit('shutdown', '<font color="#910000"><b>[Server]</b> The server has shut down</font><br/>');
+			console.log(server + ' Shutting down...');
+			process.exit();
+		} else {
+			io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + trim + '</font><br/>');
 		}
 	});
 });

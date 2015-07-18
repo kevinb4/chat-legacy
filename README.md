@@ -11,6 +11,8 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 - [x] Remake UI/Rewrite code from socket.io tutorial
 - [x] Add usernames
 - [x] Add HTML prevention
+- [x] Add server commands (command: shutdown)
+- [x] Add server messages from cmd (needs to be fixed)
 - [ ] Add spam prevention
 - [ ] Add an option to allow/restrict html in chat
 - [ ] Add clickable links
@@ -18,11 +20,15 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 - [ ] Add status (user idle)
 - [ ] Add notifcations
 - [ ] Add '[user] is typing...'
+- [ ] Add formatting
 - [ ] Add timestamp
+- [ ] Add 'read messages'
+- [ ] Add edit previous message feature
 - [ ] Add database (to save chat logs)
 - [ ] Add commands
 - [ ] Add Admin/Mod roles
 - [ ] Add colored usernames
 - [ ] Add a custom scrollbar
+- [ ] Disable auto-scroll if the user is scrolled up
 - [ ] Write a client in VB.net
 - [ ] Write an andriod app

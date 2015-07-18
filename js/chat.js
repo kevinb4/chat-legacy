@@ -53,3 +53,8 @@ socket.on('chat message', function (msg) { // When a message is emitted...
 	textarea.append(msg); // ...the message is shown in the chatbox
     chatbox.scrollTop($(chatbox).get(0).scrollHeight); // Scroll down
 });
+
+socket.on('shutdown', function (smsg) {
+	textarea.append(smsg); // Send shutdown message
+	reply.fadeOut("slow", function () { }); // So the user can no longer type
+});
