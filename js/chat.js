@@ -9,7 +9,7 @@ var socket = io(),
 		send = $('#send');
 
 $(document).ready(function () {
-    chat.hide(); // Hide the chat when the page is loaded
+	chat.hide(); // Hide the chat when the page is loaded
 });
 
 function login() {
@@ -50,6 +50,6 @@ reply.keypress(function (e) { // Checks for keys being pressed
 });
 
 socket.on('chat message', function (msg) { // When a message is emitted...
-    textarea.append(msg); // ...the message is shown in the chatbox
+	textarea.append(msg); // ...the message is shown in the chatbox
     chatbox.scrollTop($(chatbox).get(0).scrollHeight); // Scroll down
 });

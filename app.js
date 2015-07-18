@@ -32,19 +32,25 @@ io.on('connection', function (socket) {
 		}
 	});
 
-socket.on('disconnect', function () {
-	if (!socket.users) return;
-	users.splice(users.indexOf(socket.users), 1); // Remove user from list
-	console.log(server + ' User Left: ' + socket.users);
-	io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.users + ' has left<br/>');
-});
+	socket.on('disconnect', function () {
+		if (!socket.users) return;
+		users.splice(users.indexOf(socket.users), 1); // Remove user from list
+		console.log(server + ' User Left: ' + socket.users);
+		io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.users + ' has left<br/>');
+	});
 
-socket.on('chat message', function (msg) {
-	if (!msg == "") {
-		io.emit('chat message', '<b>' + socket.users + '</b>: ' + msg + "<br/>");
-		console.log(('[User] ').gray.bold + socket.users + ': ' + msg);
-	}
-});
+	socket.on('chat message', function (msg) {
+		if (!msg == "") {
+			if (msg.indexOf("<")) {
+				io.emit('chat message', '<b>' + socket.users + '</b>: ' + msg + '<br/>');
+				console.log(('[User] ').gray.bold + socket.users + ': ' + msg);
+			} else {
+				var newmsg = msg.replace(/</g, '&lt;');
+				io.emit('chat message', '<b>' + socket.users + '</b>: ' + newmsg + '<br/>');
+				console.log(('[User] ').gray.bold + socket.users + ': ' + msg);
+			}
+		}
+	});
 });
 
 http.listen(port, function () {

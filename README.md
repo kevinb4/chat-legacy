@@ -10,8 +10,13 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 #ToDo List
 - [x] Remake UI/Rewrite code from socket.io tutorial
 - [x] Add usernames
+- [x] Add HTML prevention
+- [ ] Add spam prevention
+- [ ] Add an option to allow/restrict html in chat
+- [ ] Add clickable links
 - [ ] Add userlist
 - [ ] Add status (user idle)
+- [ ] Add notifcations
 - [ ] Add '[user] is typing...'
 - [ ] Add timestamp
 - [ ] Add database (to save chat logs)
