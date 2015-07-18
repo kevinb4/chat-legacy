@@ -12,7 +12,7 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 - [x] Add usernames
 - [x] Add HTML prevention
 - [x] Add server commands (command: shutdown)
-- [x] Add server messages from cmd (needs to be fixed)
+- [x] Add server messages from cmd
 - [ ] Add spam prevention
 - [ ] Add an option to allow/restrict html in chat
 - [ ] Add clickable links

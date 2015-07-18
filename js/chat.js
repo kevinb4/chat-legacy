@@ -56,5 +56,13 @@ socket.on('chat message', function (msg) { // When a message is emitted...
 
 socket.on('shutdown', function (smsg) {
 	textarea.append(smsg); // Send shutdown message
-	reply.fadeOut("slow", function () { }); // So the user can no longer type
+	fadeOut();
 });
+
+socket.on('disconnect', function () { // Just in case someone's internet cuts out for a short amount of time
+	fadeOut();
+});
+
+function fadeOut() {
+	reply.fadeOut("slow", function () { }); // So the user can no longer type
+}

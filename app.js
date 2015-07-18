@@ -51,20 +51,20 @@ io.on('connection', function (socket) {
 			}
 		}
 	});
+});
 
-	var stdin = process.stdin, stdout = process.stdout;
+var stdin = process.stdin, stdout = process.stdout;
 
-	stdin.resume();
-	stdin.on('data', function(data) {
-		var trim = data.toString().trim();
-		if (trim == 'shutdown') {
-			io.emit('shutdown', '<font color="#910000"><b>[Server]</b> The server has shut down</font><br/>');
-			console.log(server + ' Shutting down...');
-			process.exit();
-		} else {
-			io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + trim + '</font><br/>');
-		}
-	});
+stdin.resume();
+stdin.on('data', function (data) {
+	var trim = data.toString().trim();
+	if (trim == 'shutdown') {
+		io.emit('shutdown', '<font color="#910000"><b>[Server]</b> The server has shut down</font><br/>');
+		console.log(server + ' Shutting down...');
+		process.exit();
+	} else {
+		io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + trim + '</font><br/>');
+	}
 });
 
 http.listen(port, function () {
