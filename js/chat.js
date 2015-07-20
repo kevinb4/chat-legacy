@@ -1,12 +1,13 @@
 var socket = io(),
 		username = $('#username'),
 		set = $('#set'),
-		form = $('#login'),
+		loginform = $('#login'),
 		chat = $('#chat'),
 		chatbox = $('#chat-box'),
 		reply = $('#reply'),
 		textarea = $('#chat-textarea'),
-		send = $('#send');
+		send = $('#send'),
+		users = $('#online-users');
 
 $(document).ready(function () {
 	chat.hide(); // Hide the chat when the page is loaded
@@ -15,11 +16,11 @@ $(document).ready(function () {
 function login() {
     socket.emit('new user', username.val(), function (data) {
         if (data) { // Have the server check if the username is valid
-            form.fadeOut("slow", function () {
+            loginform.fadeOut("slow", function () {
                 chat.fadeIn("slow", function () { }); // Fade into the chatbox
             });
         } else {
-            alert('There is something wrong with your username. Please check the following:\r\n-You entered a username\r\n-Your username can only contain letters and numbers (1-20 characters long)\r\n-Someone else already has that username');
+            alert('There is something wrong with your username. Please check the following:\r\n-You entered a username\r\n-Your username can only contain letters and numbers (1-15 characters long)\r\n-Someone else already has that username');
         }
     });
 }
@@ -52,6 +53,14 @@ reply.keypress(function (e) { // Checks for keys being pressed
 socket.on('chat message', function (msg) { // When a message is emitted...
 	textarea.append(msg); // ...the message is shown in the chatbox
     chatbox.scrollTop($(chatbox).get(0).scrollHeight); // Scroll down
+});
+
+socket.on('usernames', function (data) {
+	var html = '';
+	for (i = 0; i < data.length; i++) {
+		html += data[i] + '<br/>'
+	}
+	users.html(html);
 });
 
 socket.on('shutdown', function (smsg) {

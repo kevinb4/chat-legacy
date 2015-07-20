@@ -13,10 +13,10 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 - [x] Add HTML prevention
 - [x] Add server commands (command: shutdown)
 - [x] Add server messages from cmd
+- [x] Add userlist
 - [ ] Add spam prevention
 - [ ] Add an option to allow/restrict html in chat
 - [ ] Add clickable links
-- [ ] Add userlist
 - [ ] Add status (user idle)
 - [ ] Add notifcations
 - [ ] Add '[user] is typing...'

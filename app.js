@@ -27,6 +27,7 @@ io.on('connection', function (socket) {
 			callback(true);
 			socket.users = data;
 			users.push(socket.users);
+			updateNicknames();
 			console.log(server + ' New User: ' + data);
 			io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + data + ' has joined</font><br/>');
 		}
@@ -35,9 +36,14 @@ io.on('connection', function (socket) {
 	socket.on('disconnect', function () {
 		if (!socket.users) return;
 		users.splice(users.indexOf(socket.users), 1); // Remove user from list
+		updateNicknames();
 		console.log(server + ' User Left: ' + socket.users);
 		io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.users + ' has left</font><br/>');
 	});
+
+	function updateNicknames() {
+		io.sockets.emit('usernames', users);
+	}
 
 	socket.on('chat message', function (msg) {
 		if (!msg == "") {
