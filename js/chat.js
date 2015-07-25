@@ -20,7 +20,7 @@ function login() {
                 chat.fadeIn("slow", function () { }); // Fade into the chatbox
             });
         } else {
-            alert('There is something wrong with your username. Please check the following:\r\n-You entered a username\r\n-Your username can only contain letters and numbers (1-15 characters long)\r\n-Someone else already has that username\r\n-You are already logged in (on the same IP address)');
+            alert('There is something wrong with your username. Please check the following:\r\n-You entered a username\r\n-Your username can only contain letters and numbers (1-15 characters long)\r\n-Someone else already has that username');
         }
     });
 }

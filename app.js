@@ -5,8 +5,7 @@ var express = require('express'),
 	port = Number(process.env.PORT || 3000),
 	colors = require('colors'),
 	server = '[Server]'.white.bold,
-	users = [],
-	ips = [];
+	users = [];
 
 app.use('/images', express.static('images'));
 app.use('/css', express.static('css'));
@@ -27,9 +26,7 @@ io.on('connection', function (socket) {
 		} else {
 			callback(true);
 			socket.users = data;
-			socket.ips = userip;
 			users.push(socket.users);
-			ips.push(socket.ips)
 			updateNicknames();
 			console.log(server + ' New User: ' + data);
 			io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + data + ' has joined</font><br/>');
