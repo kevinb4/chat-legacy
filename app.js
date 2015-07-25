@@ -18,10 +18,7 @@ app.get('/', function (req, res) {
 io.on('connection', function (socket) {
 	socket.on('new user', function (data, callback) {
 		var user = /^[\w]{1,15}$/; // Username can only contain letters, numbers and can be 1-15 characters long
-		var userip = getIPAddresses().toString().trim();
 		if (users.indexOf(data) != -1) { // Username is already taken
-			callback(false);
-		} else if (ips.indexOf(userip) != -1) { // IP is already in use
 			callback(false);
 		} else if (!user.test(data)) { // Username has invalid characters
 			callback(false);
@@ -34,16 +31,14 @@ io.on('connection', function (socket) {
 			users.push(socket.users);
 			ips.push(socket.ips)
 			updateNicknames();
-			console.log(server + ' New User: ' + data + ' - IP: ' + userip);
+			console.log(server + ' New User: ' + data);
 			io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + data + ' has joined</font><br/>');
 		}
 	});
 
 	socket.on('disconnect', function () {
 		if (!socket.users) return;
-		if (!socket.ips) return;
 		users.splice(users.indexOf(socket.users), 1); // Remove user from list
-		ips.splice(ips.indexOf(ips.users), 1); // Remove ip from list
 		updateNicknames();
 		console.log(server + ' User Left: ' + socket.users);
 		io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.users + ' has left</font><br/>');
@@ -67,24 +62,6 @@ io.on('connection', function (socket) {
 			}
 		}
 	});
-
-	function getIPAddresses() { // When using a no-ip service, this gets the wrong IP, but can still be useful for detecting the same ip
-
-		var ipAddresses = [];
-
-		var interfaces = require('os').networkInterfaces();
-		for (var devName in interfaces) {
-			var iface = interfaces[devName];
-			for (var i = 0; i < iface.length; i++) {
-				var alias = iface[i];
-				if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
-					ipAddresses.push(alias.address);
-				}
-			}
-		}
-
-		return ipAddresses;
-	}
 });
 
 var stdin = process.stdin, stdout = process.stdout;
