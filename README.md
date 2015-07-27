@@ -33,7 +33,7 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 - [x] Add server messages from cmd
 - [x] Add userlist
 - [x] Add database (to save chat logs)
-- [ ] Add clickable links
+- [x] Add clickable links
 - [ ] Add status (user idle, user is typing..., etc)
 - [ ] Add notifcations
 - [ ] Add formatting

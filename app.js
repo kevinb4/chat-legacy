@@ -77,16 +77,28 @@ io.on('connection', function (socket) {
 		io.sockets.emit('usernames', users); // Updates the userlist
 	}
 
+	function getURL(text) {
+		var link = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+		return text.replace(link, "<a href='$1'>$1</a>"); 
+	}
+
 	socket.on('chat message', function (msg) {
 		if (!msg == "") { // Check to make sure a message was entered
 			if (!socket.users == "") { // Check to make sure the client has a username
 				var newMsg;
-				if (msg.indexOf("<")) { // Check if the user is trying to use html
-					io.emit('chat message', '<b>' + socket.users + '</b>: ' + msg + '<br/>');
+				if (msg.indexOf("<") == -1) { // Check if the user is trying to use html
+					var noHTML = msg; // Just so you don't get HTML in the console
+					if (noHTML.indexOf("http") >= 0) { // Check to see if there's a link
+						var noHTML = getURL(noHTML);
+					}
+					io.emit('chat message', '<b>' + socket.users + '</b>: ' + noHTML + '<br/>');
 					console.log(('[User] ').gray.bold + socket.users + ': ' + msg);
-					newMsg = new chat({ msg: '<b>' + socket.users + '</b>: ' + msg + '<br/>' });
+					newMsg = new chat({msg: '<b>' + socket.users + '</b>: ' + noHTML + '<br/>'});
 				} else {
-					var htmlRemoval = msg.replace(/</g, '&lt;'); // Changes the character to show as a <, but not work with HTML
+					var htmlRemoval = msg.replace(/</g, '&lt;'); // Changes the character to show as a <, but will not work with HTML
+					if (htmlRemoval.indexOf("http") >= 0) { // Check to see if there's a link
+						var htmlRemoval = getURL(htmlRemoval);
+					}
 					io.emit('chat message', '<b>' + socket.users + '</b>: ' + htmlRemoval + '<br/>');
 					console.log(('[User] ').gray.bold + socket.users + ': ' + msg);
 					newMsg = new chat({msg: '<b>' + socket.users + '</b>: ' + htmlRemoval + '<br/>'});
