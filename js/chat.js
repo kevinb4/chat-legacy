@@ -18,6 +18,7 @@ function login() {
 		if (data) { // Have the server check if the username is valid
 			loginform.fadeOut("slow", function () {
 				chat.fadeIn("slow", function () { }); // Fade into the chatbox
+				chatbox.scrollTop($(chatbox).get(0).scrollHeight); // Scroll to the bottom
 			});
 		} else {
 			alert('There is something wrong with your username. Please check the following:\r\n-You entered a username\r\n-Your username can only contain letters and numbers (1-15 characters long)\r\n-Someone else already has that username\r\n-You are already logged in (on the same IP address)');
@@ -40,6 +41,13 @@ function sendMessage() {
 	reply.val(""); // Clear the reply box
 }
 
+function appendMessage(msg) {
+	textarea.append(msg); // Show message
+	if ($(chatbox).scrollTop()  > chatbox.height() / 2) { // Check to see if the scroll bar is at the bottom
+		chatbox.scrollTop($(chatbox).get(0).scrollHeight); // Scroll to the bottom
+	}
+}
+
 send.click(function () { // Clicking the send button
 	sendMessage();
 });
@@ -50,26 +58,28 @@ reply.keypress(function (e) { // Checks for keys being pressed
 	}
 });
 
-socket.on('chat message', function (msg) { // When a message is emitted...
-	textarea.append(msg); // ...the message is shown in the chatbox
-	chatbox.scrollTop($(chatbox).get(0).scrollHeight); // Scroll down
+socket.on('chat message', function (msg) {
+	appendMessage(msg);
 });
 
 socket.on('usernames', function (data) {
 	var html = '';
-	for (i = 0; i < data.length; i++) {
+	for (var i = 0; i < data.length; i++) {
 		html += data[i] + '<br/>'
 	}
 	users.html(html);
 });
 
-socket.on('shutdown', function (smsg) {
-	textarea.append(smsg); // Send shutdown message
+socket.on('disconnect', function () { // Just in case someone's internet cuts out for a short amount of time
+	textarea.html(""); // Clear the chat
+	appendMessage('<font color="#5E97FF"><b>[Server]</b> You have been disconnected</font><br/>');
 	fadeOut();
 });
 
-socket.on('disconnect', function () { // Just in case someone's internet cuts out for a short amount of time
-	fadeOut();
+socket.on('load messages', function (msgs) {
+	for (var i = 0; i < msgs.length; i++) {
+		appendMessage(msgs[i].msg);
+	}
 });
 
 function fadeOut() {
