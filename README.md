@@ -11,10 +11,13 @@ This is a basic chat that will be improved over time... check out the ToDo list 
 3. Execute `mongod.exe --dbpath "...\chat\db"`
 
 You can also make a batch file with the following (the `...` being the path that leads to the respective directories)
-`cd "...\MongoDB\Server\3.0\bin\"
-start mongod.exe --dbpath "...\chat\db"`
+`cd "...\MongoDB\Server\3.0\bin\"`
+`start mongod.exe --dbpath "...\chat\db"`
 
 MongoDB should now be running. If you run into any issues, refer to MongoDB's docs.
+
+#Github Errors
+If you are getting "Filename is too long" error, run `git config --system core.longpaths true` in git shell.
 
 #Test Server
 A test server has been setup here http://chatproject.ddns.net:3000/
