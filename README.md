@@ -34,13 +34,14 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 - [x] Add userlist
 - [x] Add database (to save chat logs)
 - [x] Add clickable links
+- [x] Add whisper function (user command)
 - [ ] Add status (user idle, user is typing..., etc)
 - [ ] Add notifcations
 - [ ] Add formatting
 - [ ] Add timestamp
 - [ ] Add 'read messages'
 - [ ] Add edit previous message feature
-- [ ] Add commands
+- [ ] Add user commands
 - [ ] Add Admin/Mod roles
 - [ ] Add colored usernames
 - [ ] Add a custom scrollbar

@@ -6,7 +6,7 @@ var express = require('express'),
 	mongoose = require('mongoose'),
 	server = '[Server] '.white.bold,
 	error = '[Error] '.red.bold,
-	users = [],
+	users = {},
 	ips = [];
 
 console.log(server + 'listening @ localhost:' + port);
@@ -43,7 +43,7 @@ io.on('connection', function (socket) {
 	socket.on('new user', function (data, callback) {
 		var user = /^[\w]{1,15}$/; // Username can only contain letters, numbers and can be 1-15 characters long
 		var userip = socket.request.connection.remoteAddress; // Get IP - Unshortend
-		if (users.indexOf(data) != -1) { // Username is already taken
+		if (data in users) { // Username is already taken
 			callback(false);
 		} else if (ips.indexOf(userip) != -1) { // IP is already in use
 			callback(false);
@@ -53,9 +53,9 @@ io.on('connection', function (socket) {
 			callback(false);
 		} else {
 			callback(true);
-			socket.users = data;
+			socket.username = data;
+			users[socket.username] = socket;
 			socket.ips = userip;
-			users.push(socket.users);
 			ips.push(socket.ips)
 			updateNicknames();
 			console.log(server + 'New User: ' + data + ' IP: ' + userip);
@@ -64,17 +64,17 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('disconnect', function () {
-		if (!socket.users) return;
+		if (!socket.username) return;
 		if (!socket.ips) return;
-		users.splice(users.indexOf(socket.users), 1); // Remove user from list
-		ips.splice(ips.indexOf(ips.users), 1); // Remove ip from list
+		delete users[socket.username]; // Remove user from list
+		ips.splice(ips.indexOf(socket.ips), 1); // Remove ip from list
 		updateNicknames();
-		console.log(server + 'User Left: ' + socket.users);
-		io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.users + ' has left</font><br/>');
+		console.log(server + 'User Left: ' + socket.username);
+		io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.username + ' has left</font><br/>');
 	});
 
 	function updateNicknames() {
-		io.sockets.emit('usernames', users); // Updates the userlist
+		io.sockets.emit('usernames', Object.keys(users)); // Updates the userlist
 	}
 
 	function getURL(text) {
@@ -82,30 +82,56 @@ io.on('connection', function (socket) {
 		return text.replace(link, "<a href='$1'>$1</a>"); 
 	}
 
+	function whisper(msg) {
+		var errormsg = '<font color="#5E97FF"><b>[Server]</b> Please make sure you entered a valid username and a valid message</font><br/>';
+		msg = msg.substr(3); // Remove the '/w '
+		var index = msg.indexOf(' '); // Find the space, where the message starts
+		if (index != -1) { // Checks to see if the space exists
+			var name = msg.substring(0, index); // Set the name
+			var message = msg.substring(index + 1); // Set the message
+			if (name in users) { // Make sure the user exists
+				users[name].emit('chat message', '<font color="gray"><b>[Whisper]</b> ' + socket.username + ': ' + message + '</font><br/>');
+				users[socket.username].emit('chat message', '<font color="gray"><b>[Whisper]</b> ' + socket.username + ': ' + message + '</font><br/>');
+			} else {
+				users[socket.username].emit('chat message', errormsg);
+			}
+		} else {
+			users[socket.username].emit('chat message', errormsg);
+		}
+	}
+
+	function message(msg) {
+		var newMsg;
+		if (msg.indexOf("<") == -1) { // Check if the user is trying to use html
+			var noHTML = msg; // Just so you don't get HTML in the console
+			if (noHTML.indexOf("http") >= 0) { // Check to see if there's a link
+				var noHTML = getURL(noHTML);
+			}
+			io.emit('chat message', '<b>' + socket.username + '</b>: ' + noHTML + '<br/>');
+			console.log(('[User] ').gray.bold + socket.username + ': ' + msg);
+			newMsg = new chat({msg: '<b>' + socket.username + '</b>: ' + noHTML + '<br/>'});
+		} else {
+			var htmlRemoval = msg.replace(/</g, '&lt;'); // Changes the character to show as a <, but will not work with HTML
+			if (htmlRemoval.indexOf("http") >= 0) { // Check to see if there's a link
+				var htmlRemoval = getURL(htmlRemoval);
+			}
+			io.emit('chat message', '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>');
+			console.log(('[User] ').gray.bold + socket.username + ': ' + msg);
+			newMsg = new chat({msg: '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>'});
+		}
+		newMsg.save(function (errormsg) { // Save the msgs to mongodb
+			if (errormsg) console.log(error + errormsg);
+		});
+	}
+	
 	socket.on('chat message', function (msg) {
 		if (!msg == "") { // Check to make sure a message was entered
-			if (!socket.users == "") { // Check to make sure the client has a username
-				var newMsg;
-				if (msg.indexOf("<") == -1) { // Check if the user is trying to use html
-					var noHTML = msg; // Just so you don't get HTML in the console
-					if (noHTML.indexOf("http") >= 0) { // Check to see if there's a link
-						var noHTML = getURL(noHTML);
-					}
-					io.emit('chat message', '<b>' + socket.users + '</b>: ' + noHTML + '<br/>');
-					console.log(('[User] ').gray.bold + socket.users + ': ' + msg);
-					newMsg = new chat({msg: '<b>' + socket.users + '</b>: ' + noHTML + '<br/>'});
+			if (!socket.username == "") { // Check to make sure the client has a username
+				if(msg.substr(0, 3) === '/w ') { // Check for whisper
+					whisper(msg);
 				} else {
-					var htmlRemoval = msg.replace(/</g, '&lt;'); // Changes the character to show as a <, but will not work with HTML
-					if (htmlRemoval.indexOf("http") >= 0) { // Check to see if there's a link
-						var htmlRemoval = getURL(htmlRemoval);
-					}
-					io.emit('chat message', '<b>' + socket.users + '</b>: ' + htmlRemoval + '<br/>');
-					console.log(('[User] ').gray.bold + socket.users + ': ' + msg);
-					newMsg = new chat({msg: '<b>' + socket.users + '</b>: ' + htmlRemoval + '<br/>'});
+					message(msg);
 				}
-				newMsg.save(function (errormsg) { // Save the msgs to mongodb
-					if (errormsg) console.log(error + errormsg);
-				});
 			}
 		}
 	});
