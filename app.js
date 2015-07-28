@@ -150,6 +150,15 @@ stdin.on('data', function (data) {
 		console.log(server + 'Shutting down...');
 		mongoose.disconnect;
 		process.exit();
+	} else if (input.substr(0, 5) === 'kick ') { // Kick command
+		input = input.substr(5);
+		if (input in users) {
+			console.log(server + 'User ' + input + ' has been kicked');
+			io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> User ' + input + ' has been kicked from the chat</font><br/>');
+			users[input].disconnect();
+		} else {
+			console.log(server + 'user ' + input + ' does not exist');
+		}
 	} else { // Anything else that's entered is sent as a server message
 		io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + input + '</font><br/>');
 	}

@@ -45,6 +45,5 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 - [ ] Add Admin/Mod roles
 - [ ] Add colored usernames
 - [ ] Add a custom scrollbar
-- [ ] Disable auto-scroll if the user is scrolled up
 - [ ] Write a client in VB.net
 - [ ] Write an andriod app
