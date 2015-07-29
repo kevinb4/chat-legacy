@@ -42,9 +42,16 @@ function sendMessage() {
 }
 
 function appendMessage(msg) {
+	var scrollpos = (chatbox).scrollTop(),
+		scrolltotal = chatbox.prop('scrollHeight'),
+		bottom = scrolltotal - scrollpos;
+
 	textarea.append(msg); // Show message
-	if ($(chatbox).scrollTop()  > chatbox.height() / 2) { // Check to see if the scroll bar is at the bottom
+	chatbox.perfectScrollbar('update');
+	$('[data-toggle="tooltip"]').tooltip(); // For full timestamp
+	if (bottom == 400) { // Check to see if the scroll bar is at the bottom
 		chatbox.scrollTop($(chatbox).get(0).scrollHeight); // Scroll to the bottom
+		chatbox.perfectScrollbar('update');
 	}
 }
 
@@ -77,7 +84,7 @@ socket.on('disconnect', function () { // Just in case someone's internet cuts ou
 });
 
 socket.on('load messages', function (msgs) {
-	for (var i = 0; i < msgs.length; i++) {
+	for (var i = msgs.length - 1; i >= 0; i--) {
 		appendMessage(msgs[i].msg);
 	}
 });

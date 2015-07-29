@@ -35,7 +35,7 @@ app.get('/', function (req, res) {
 
 io.on('connection', function (socket) {
 	var query = chat.find({});
-	query.sort('-created').limit(50).exec(function (errormsg, msgs) { // Load the last 50 messages in order
+	query.sort('-date').limit(50).exec(function(errormsg, msgs) { // Load the last 50 messages in order
 		if (errormsg) console.log(error + errormsg);
 		socket.emit('load messages', msgs);
 	});
@@ -73,6 +73,29 @@ io.on('connection', function (socket) {
 		io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.username + ' has left</font><br/>');
 	});
 
+	function getTime() {
+		var timestring = "",
+			ampm = "",
+			currentTime = new Date(),
+			hours = currentTime.getHours(),
+			minutes = currentTime.getMinutes();
+
+		if (minutes < 10) {
+			minutes = "0" + minutes;
+		}
+		if(hours > 11){
+			ampm = "PM";
+			hours = hours % 12;
+			if (hours == 0)
+				hours = 12;
+		} else {
+			ampm = "AM";
+		}
+		//io.emit('chat message', 'hours = ' + hours
+		timestring = hours + ":" + minutes + " " + ampm;
+		return timestring;
+	}
+
 	function updateNicknames() {
 		io.sockets.emit('usernames', Object.keys(users)); // Updates the userlist
 	}
@@ -102,22 +125,24 @@ io.on('connection', function (socket) {
 
 	function message(msg) {
 		var newMsg;
+		var time = getTime();
+		var fulldate = Date();
 		if (msg.indexOf("<") == -1) { // Check if the user is trying to use html
 			var noHTML = msg; // Just so you don't get HTML in the console
 			if (noHTML.indexOf("http") >= 0) { // Check to see if there's a link
 				var noHTML = getURL(noHTML);
 			}
-			io.emit('chat message', '<b>' + socket.username + '</b>: ' + noHTML + '<br/>');
-			console.log(('[User] ').gray.bold + socket.username + ': ' + msg);
-			newMsg = new chat({msg: '<b>' + socket.username + '</b>: ' + noHTML + '<br/>'});
+			io.emit('chat message', '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + noHTML + '<br/>');
+			console.log(('[User] ').gray.bold + time + ' ' + socket.username + ': ' + msg);
+			newMsg = new chat({msg: '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + noHTML + '<br/>'});
 		} else {
 			var htmlRemoval = msg.replace(/</g, '&lt;'); // Changes the character to show as a <, but will not work with HTML
 			if (htmlRemoval.indexOf("http") >= 0) { // Check to see if there's a link
 				var htmlRemoval = getURL(htmlRemoval);
-			}
-			io.emit('chat message', '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>');
-			console.log(('[User] ').gray.bold + socket.username + ': ' + msg);
-			newMsg = new chat({msg: '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>'});
+		}
+		io.emit('chat message', '<font size="2" data-toggle="tooltip" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>');
+		console.log(('[User] ').gray.bold + time + ' ' + socket.username + ': ' + msg);
+		newMsg = new chat({msg: '<font size="2" data-toggle="tooltip" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>'});
 		}
 		newMsg.save(function (errormsg) { // Save the msgs to mongodb
 			if (errormsg) console.log(error + errormsg);

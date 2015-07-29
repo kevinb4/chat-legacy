@@ -35,15 +35,15 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 - [x] Add database (to save chat logs)
 - [x] Add clickable links
 - [x] Add whisper function (user command)
+- [x] Add timestamp
+- [x] Add a custom scrollbar
 - [ ] Add status (user idle, user is typing..., etc)
 - [ ] Add notifcations
 - [ ] Add formatting
-- [ ] Add timestamp
 - [ ] Add 'read messages'
 - [ ] Add edit previous message feature
 - [ ] Add user commands
 - [ ] Add Admin/Mod roles
 - [ ] Add colored usernames
-- [ ] Add a custom scrollbar
 - [ ] Write a client in VB.net
 - [ ] Write an andriod app

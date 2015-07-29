@@ -1,6 +1,6 @@
 /*Global Text Def*/
 * {
-	font-family: Century Gothic;
+	font-family: "Century Gothic";
 }
 #body {
 	margin: auto;
@@ -10,26 +10,25 @@
 	width: 1020px;
 	height: 620px;
 	-webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
 	-webkit-box-shadow: 0px 0px 10px 0px #000000;
-    -moz-box-shadow: 0px 0px 10px 0px #000000;
-    box-shadow: 0px 0px 10px 0px #000000;
+	-moz-box-shadow: 0px 0px 10px 0px #000000;
+	box-shadow: 0px 0px 10px 0px #000000;
 }
 #username-box {
 	margin: auto;
 	margin-bottom: 15px;
 	height: 40px;
 	width: 300px;
-    overflow: auto; 
-    border: 0px solid;
+	border: 0px solid;
 	background: #FFFFFF;
 	-webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
 	-webkit-box-shadow: inset 0px 0px 5px 0px #000000;
-    -moz-box-shadow: inset 0px 0px 5px 0px #000000;
-    box-shadow: inset 0px 0px 5px 0px #000000;
+	-moz-box-shadow: inset 0px 0px 5px 0px #000000;
+	box-shadow: inset 0px 0px 5px 0px #000000;
 }
 #username-box input {
 	margin: 8px;
@@ -41,26 +40,25 @@
 	background-color: transparent;
 }
 #login {
-    top: 50%;
-    left: 50%;
-    position: absolute;
-    transform: translateX(-50%) translateY(-50%);
+	top: 50%;
+	left: 50%;
+	position: absolute;
+	transform: translateX(-50%) translateY(-50%);
 }
 #chat-box {
-	padding: 10;
 	width: 720px;
 	height: 400px;
-	overflow-y: auto;
-    border: 0px solid;
+	border: 0px solid;
 	margin-left: 50px;
 	margin-bottom: 10px;
+	position: absolute;
 	background: #FFFFFF;
 	-webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
 	-webkit-box-shadow: inset 0px 0px 7px 0px #000000;
-    -moz-box-shadow: inset 0px 0px 7px 0px #000000;
-    box-shadow: inset 0px 0px 7px 0px #000000;
+	-moz-box-shadow: inset 0px 0px 7px 0px #000000;
+	box-shadow: inset 0px 0px 7px 0px #000000;
 }
 #chat-textarea {
 	margin: 8px;
@@ -76,14 +74,16 @@
 #reply-box {
 	height: 40px;
 	width: 625px;
-    overflow: auto; 
-    border: 0px solid;
+	overflow: auto; 
+	border: 0px solid;
 	margin-left: 50px;
 	background: #FFFFFF;
-	 margin-right: 282px;
+	margin-right: 282px;
+	margin-top: 410px;
+	position: absolute;
 	-webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
 	-moz-box-shadow: inset 0px 0px 7px 0px #000000;
 	-webkit-box-shadow: inset 0px 0px 7px 0px #000000;
 	box-shadow: inset 0px 0px 7px 0px #000000;
@@ -101,14 +101,14 @@
 	width: 190px;
 	height: 450px;
 	display: block;
-    overflow: auto;
-    border: 0px solid;
+	overflow: auto;
+	border: 0px solid;
 	margin-left: 780px;
 	position: absolute;
 	background: #FFFFFF;
 	-webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
 	-moz-box-shadow: inset 0px 0px 7px 0px #000000;
 	-webkit-box-shadow: inset 0px 0px 7px 0px #000000;
 	box-shadow: inset 0px 0px 7px 0px #000000;
@@ -129,6 +129,7 @@
 	cursor: pointer;
 	position: absolute;
 	margin-left: 685px;
+	margin-top: 410px;
 	border-radius: 7px;
 	margin-bottom: 10px;
 	border: medium none;
@@ -165,3 +166,108 @@ p {
 	font-size: 14px;
 	text-align: center;
 }
+
+/* perfect-scrollbar v0.6.4 */
+.ps-container {
+  -ms-touch-action: none;
+  overflow: hidden !important; }
+  .ps-container.ps-active-x > .ps-scrollbar-x-rail, .ps-container.ps-active-y > .ps-scrollbar-y-rail {
+    display: block; }
+  .ps-container.ps-in-scrolling {
+    pointer-events: none; }
+    .ps-container.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
+      background-color: transparent;
+      opacity: 0.9; }
+      .ps-container.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail > .ps-scrollbar-x {
+        background-color: #999; }
+    .ps-container.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+      background-color: transparent;
+      opacity: 0.9; }
+      .ps-container.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail > .ps-scrollbar-y {
+        background-color: #999; }
+  .ps-container > .ps-scrollbar-x-rail {
+    display: none;
+    position: absolute;
+    /* please don't change 'position' */
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    border-radius: 4px;
+    opacity: 0;
+    -webkit-transition: background-color .2s linear, opacity .2s linear;
+    -moz-transition: background-color .2s linear, opacity .2s linear;
+    -o-transition: background-color .2s linear, opacity .2s linear;
+    transition: background-color .2s linear, opacity .2s linear;
+    bottom: 3px;
+    /* there must be 'bottom' for ps-scrollbar-x-rail */
+    height: 8px; }
+    .ps-container > .ps-scrollbar-x-rail > .ps-scrollbar-x {
+      position: absolute;
+      /* please don't change 'position' */
+      background-color: #aaa;
+      -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      -ms-border-radius: 4px;
+      border-radius: 4px;
+      -webkit-transition: background-color .2s linear;
+      -moz-transition: background-color .2s linear;
+      -o-transition: background-color .2s linear;
+      transition: background-color .2s linear;
+      bottom: 0;
+      /* there must be 'bottom' for ps-scrollbar-x */
+      height: 8px; }
+  .ps-container > .ps-scrollbar-y-rail {
+    display: none;
+    position: absolute;
+    /* please don't change 'position' */
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    border-radius: 4px;
+    opacity: 0;
+    -webkit-transition: background-color .2s linear, opacity .2s linear;
+    -moz-transition: background-color .2s linear, opacity .2s linear;
+    -o-transition: background-color .2s linear, opacity .2s linear;
+    transition: background-color .2s linear, opacity .2s linear;
+    right: 3px;
+    /* there must be 'right' for ps-scrollbar-y-rail */
+    width: 8px; }
+    .ps-container > .ps-scrollbar-y-rail > .ps-scrollbar-y {
+      position: absolute;
+      /* please don't change 'position' */
+      background-color: #aaa;
+      -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      -ms-border-radius: 4px;
+      border-radius: 4px;
+      -webkit-transition: background-color .2s linear;
+      -moz-transition: background-color .2s linear;
+      -o-transition: background-color .2s linear;
+      transition: background-color .2s linear;
+      right: 0;
+      /* there must be 'right' for ps-scrollbar-y */
+      width: 8px; }
+  .ps-container:hover.ps-in-scrolling {
+    pointer-events: none; }
+    .ps-container:hover.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
+      background-color: #eee;
+      opacity: 0.9; }
+      .ps-container:hover.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail > .ps-scrollbar-x {
+        background-color: #999; }
+    .ps-container:hover.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+      background-color: #eee;
+      opacity: 0.9; }
+      .ps-container:hover.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail > .ps-scrollbar-y {
+        background-color: #999; }
+  .ps-container:hover > .ps-scrollbar-x-rail, .ps-container:hover > .ps-scrollbar-y-rail {
+    opacity: 0.6; }
+  .ps-container:hover > .ps-scrollbar-x-rail:hover {
+    background-color: #eee;
+    opacity: 0.9; }
+    .ps-container:hover > .ps-scrollbar-x-rail:hover > .ps-scrollbar-x {
+      background-color: #999; }
+  .ps-container:hover > .ps-scrollbar-y-rail:hover {
+    background-color: transparent;
+    opacity: 0.9; }
+    .ps-container:hover > .ps-scrollbar-y-rail:hover > .ps-scrollbar-y {
+      background-color: #999; }
