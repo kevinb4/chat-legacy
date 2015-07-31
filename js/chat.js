@@ -15,13 +15,13 @@ $(document).ready(function () {
 
 function login() {
 	socket.emit('new user', username.val(), function (data) {
-		if (data) { // Have the server check if the username is valid
+		if (data == 'success') { // Have the server check if the username is valid
 			loginform.fadeOut("slow", function () {
 				chat.fadeIn("slow", function () { }); // Fade into the chatbox
 				chatbox.scrollTop($(chatbox).get(0).scrollHeight); // Scroll to the bottom
 			});
 		} else {
-			alert('There is something wrong with your username. Please check the following:\r\n-You entered a username\r\n-Your username can only contain letters and numbers (1-15 characters long)\r\n-Someone else already has that username\r\n-You are already logged in (on the same IP address)');
+			alert(data);
 		}
 	});
 }
@@ -65,9 +65,38 @@ reply.keypress(function (e) { // Checks for keys being pressed
 	}
 });
 
+var vis = (function(){
+	var stateKey, eventKey, keys = {
+		hidden: "visibilitychange",
+		webkitHidden: "webkitvisibilitychange",
+		mozHidden: "mozvisibilitychange",
+		msHidden: "msvisibilitychange"
+	};
+	for (stateKey in keys) {
+		if (stateKey in document) {
+			eventKey = keys[stateKey];
+			break;
+		}
+	}
+	return function(c) {
+		if (c) document.addEventListener(eventKey, c);
+		return !document[stateKey];
+	}
+})();
+
 socket.on('chat message', function (msg) {
 	appendMessage(msg);
+
+	if(vis() == true)
+		document.title = "ChatProject";
+	else
+		document.title = "[!] ChatProject";
+
 });
+
+window.onfocus = function() {
+	document.title = "ChatProject";
+}
 
 socket.on('usernames', function (data) {
 	var html = '';
@@ -79,6 +108,7 @@ socket.on('usernames', function (data) {
 
 socket.on('disconnect', function () { // Just in case someone's internet cuts out for a short amount of time
 	textarea.html(""); // Clear the chat
+	users.html(""); // Clear the userlist
 	appendMessage('<font color="#5E97FF"><b>[Server]</b> You have been disconnected</font><br/>');
 	fadeOut();
 });

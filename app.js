@@ -4,10 +4,13 @@ var express = require('express'),
 	io = require('socket.io').listen(app.listen(port)),
 	colors = require('colors'),
 	mongoose = require('mongoose'),
+	getmac = require('getmac'),
 	server = '[Server] '.white.bold,
 	error = '[Error] '.red.bold,
 	users = {},
-	ips = [];
+	macs = {},
+	macAdd,
+	saveMsg;
 
 console.log(server + 'listening @ localhost:' + port);
 
@@ -33,6 +36,11 @@ app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/chat.html');
 });
 
+require('getmac').getMac(function(err, macAddress) { // Get the mac address
+	if (err) onsole.log(err);
+	macAdd = macAddress;
+});
+
 io.on('connection', function (socket) {
 	var query = chat.find({});
 	query.sort('-date').limit(50).exec(function(errormsg, msgs) { // Load the last 50 messages in order
@@ -42,35 +50,49 @@ io.on('connection', function (socket) {
 
 	socket.on('new user', function (data, callback) {
 		var user = /^[\w]{1,15}$/; // Username can only contain letters, numbers and can be 1-15 characters long
-		var userip = socket.request.connection.remoteAddress; // Get IP - Unshortend
+		if (macs[macAdd]) // If the mac address doesn't exist yet,
+			macs[macAdd]++; // add it
+		else
+			macs[macAdd] = 1; // If not, have another instance added
+
 		if (data in users) { // Username is already taken
-			callback(false);
-		} else if (ips.indexOf(userip) != -1) { // IP is already in use
-			callback(false);
+			macs[macAdd]--;
+			callback('Someone else already has this username');
 		} else if (!user.test(data)) { // Username has invalid characters
-			callback(false);
+			macs[macAdd]--;
+			callback('Your username contains invalid characters or is too long. Your username can only contain letters and numbers (1-15 characters long)');
 		} else if (data == null) { // No username was entered
-			callback(false);
+			macs[macAdd]--;
+			callback('Please enter a username');
+		} else if (macs[macAdd] >= 4) {
+			macs[macAdd]--;
+			callback('You already have 3 chats open');
 		} else {
-			callback(true);
-			socket.username = data;
-			users[socket.username] = socket;
-			socket.ips = userip;
-			ips.push(socket.ips)
-			updateNicknames();
-			console.log(server + 'New User: ' + data + ' IP: ' + userip);
-			io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + data + ' has joined</font><br/>');
+			callback('success');
+			connect(data);
 		}
 	});
 
+	function connect(data) {
+		socket.username = data;
+		users[socket.username] = socket;
+		updateNicknames();
+		console.log(macs);
+		console.log(server + 'New User: ' + data + ' MAC: ' + macAdd);
+		io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + data + ' has joined</font><br/>');
+		saveMsg = new chat({ msg: '<font color="#5E97FF"><b>[Server]</b> ' + data + ' has joined</font><br/>' });
+		saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
+	}
+
 	socket.on('disconnect', function () {
 		if (!socket.username) return;
-		if (!socket.ips) return;
 		delete users[socket.username]; // Remove user from list
-		ips.splice(ips.indexOf(socket.ips), 1); // Remove ip from list
+		delete macs[macAdd]; // Remove MAC address from list
 		updateNicknames();
 		console.log(server + 'User Left: ' + socket.username);
 		io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.username + ' has left</font><br/>');
+		saveMsg = new chat({ msg: '<font color="#4E7ACC"><b>[Server]</b> ' + socket.username + ' has left</font><br/>' });
+		saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
 	});
 
 	function getTime() {
@@ -91,7 +113,6 @@ io.on('connection', function (socket) {
 		} else {
 			ampm = "AM";
 		}
-		//io.emit('chat message', 'hours = ' + hours
 		timestring = hours + ":" + minutes + " " + ampm;
 		return timestring;
 	}
@@ -124,7 +145,6 @@ io.on('connection', function (socket) {
 	}
 
 	function message(msg) {
-		var newMsg;
 		var time = getTime();
 		var fulldate = Date();
 		if (msg.indexOf("<") == -1) { // Check if the user is trying to use html
@@ -134,7 +154,7 @@ io.on('connection', function (socket) {
 			}
 			io.emit('chat message', '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + noHTML + '<br/>');
 			console.log(('[User] ').gray.bold + time + ' ' + socket.username + ': ' + msg);
-			newMsg = new chat({msg: '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + noHTML + '<br/>'});
+			saveMsg = new chat({msg: '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + noHTML + '<br/>'});
 		} else {
 			var htmlRemoval = msg.replace(/</g, '&lt;'); // Changes the character to show as a <, but will not work with HTML
 			if (htmlRemoval.indexOf("http") >= 0) { // Check to see if there's a link
@@ -142,11 +162,9 @@ io.on('connection', function (socket) {
 		}
 		io.emit('chat message', '<font size="2" data-toggle="tooltip" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>');
 		console.log(('[User] ').gray.bold + time + ' ' + socket.username + ': ' + msg);
-		newMsg = new chat({msg: '<font size="2" data-toggle="tooltip" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>'});
+		saveMsg = new chat({msg: '<font size="2" data-toggle="tooltip" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>'});
 		}
-		newMsg.save(function (errormsg) { // Save the msgs to mongodb
-			if (errormsg) console.log(error + errormsg);
-		});
+		saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
 	}
 	
 	socket.on('chat message', function (msg) {
@@ -180,11 +198,14 @@ stdin.on('data', function (data) {
 		if (input in users) {
 			console.log(server + 'User ' + input + ' has been kicked');
 			io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> User ' + input + ' has been kicked from the chat</font><br/>');
+			saveMsg = new chat({ msg: '<font color="#5E97FF"><b>[Server]</b> User ' + input + ' has been kicked from the chat</font><br/>' });
 			users[input].disconnect();
 		} else {
 			console.log(server + 'user ' + input + ' does not exist');
 		}
 	} else { // Anything else that's entered is sent as a server message
 		io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + input + '</font><br/>');
+		saveMsg = new chat({ msg: '<font color="#5E97FF"><b>[Server]</b> ' + input + '</font><br/>' });
 	}
+	saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
 });

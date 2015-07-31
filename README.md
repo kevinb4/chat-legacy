@@ -37,8 +37,8 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 - [x] Add whisper function (user command)
 - [x] Add timestamp
 - [x] Add a custom scrollbar
+- [x] Add gitter-like notifcation
 - [ ] Add status (user idle, user is typing..., etc)
-- [ ] Add notifcations
 - [ ] Add formatting
 - [ ] Add 'read messages'
 - [ ] Add edit previous message feature
