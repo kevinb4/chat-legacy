@@ -1,20 +1,30 @@
 var socket = io(),
-		username = $('#username'),
-		set = $('#set'),
-		loginform = $('#login'),
-		chat = $('#chat'),
-		chatbox = $('#chat-box'),
-		reply = $('#reply'),
-		textarea = $('#chat-textarea'),
-		send = $('#send'),
-		users = $('#online-users');
-
-$(document).ready(function () {
-	chat.hide(); // Hide the chat when the page is loaded
-});
+	username = $('#username'),
+	btnLogin = $('#btnLogin'),
+	btnRegister = $('#btnRegister'),
+	btnSubmit = $('#btnSubmit'),
+	regUsername = $('#regUsername'),
+	regPassword = $('#regPassword'),
+	regpasswordConfirm = $('#regpasswordConfirm'),
+	txtUsername = $('#username'),
+	txtPassword = $('#password'),
+	loginform = $('#login'),
+	registerForm = $('#registerForm'),
+	chat = $('#chat'),
+	chatbox = $('#chat-box'),
+	reply = $('#reply'),
+	textarea = $('#chat-textarea'),
+	send = $('#send'),
+	users = $('#online-users'),
+	progBar = $('#progressbar'),
+	salt,
+	typeRegister,
+	typeLogin,
+	pHashed;
 
 function login() {
-	socket.emit('new user', username.val(), function (data) {
+	var loginDetails = { username : txtUsername.val(), password : txtPassword.val() }
+	socket.emit('user login', loginDetails, function (data) {
 		if (data == 'success') { // Have the server check if the username is valid
 			loginform.fadeOut("slow", function () {
 				chat.fadeIn("slow", function () { }); // Fade into the chatbox
@@ -25,16 +35,6 @@ function login() {
 		}
 	});
 }
-
-set.click(function () { // Clicking the send button
-	login();
-});
-
-username.keypress(function (e) {
-	if (e.which == 13) { // Pressing Enter
-		login();
-	}
-});
 
 function sendMessage() {
 	socket.emit('chat message', reply.val()); // Emit the message
@@ -54,6 +54,62 @@ function appendMessage(msg) {
 		chatbox.perfectScrollbar('update');
 	}
 }
+
+function fadeOut() {
+	reply.fadeOut("slow", function () { }); // So the user can no longer type
+}
+
+window.onfocus = function() {
+	document.title = "ChatProject";
+}
+
+$.extend({
+	playSound: function(){
+		return $("<embed src='"+arguments[0]+".mp3' hidden='true' autostart='true' loop='false' height='0' width='0' class='playSound'>" + "<audio autoplay='autoplay' style='display:none;' controls='controls'><source src='"+arguments[0]+".mp3' /><source src='"+arguments[0]+".ogg' /></audio>").appendTo('body');
+	}
+});
+
+$(document).ready(function () {
+	chat.hide(); // Hide the chat when the page is loaded
+	registerForm.hide();
+});
+
+btnLogin.click(function () { // Clicking the send button
+	login();
+});
+
+txtPassword.keypress(function (e) {
+	if (e.which == 13) { // Pressing Enter
+		login();
+	}
+});
+
+btnRegister.click(function () {
+	loginform.fadeOut("slow", function () {
+		registerForm.fadeIn("slow", function () { }); // Fade into the chatbox
+	});
+});
+
+btnSubmit.click(function () {
+	var passLen = regPassword.val();
+	if (!regPassword.val() == regpasswordConfirm.val()) {
+		alert('Your passwords do not match');
+	} else if (passLen.length < 2 || passLen.length > 20) {
+		alert('Your password must be 3-20 characters long');
+	} else {
+		var registerDetails = { username: regUsername.val(), password: regPassword.val() }
+		socket.emit('register', registerDetails, function (data) {
+			if (data == 'success') {
+				alert('Signup successful! You may now login');
+				registerForm.fadeOut("slow", function () {
+					loginform.fadeIn("slow", function () { });
+				});
+			} else {
+				alert(data);
+			}
+		});
+	}
+});
 
 send.click(function () { // Clicking the send button
 	sendMessage();
@@ -87,26 +143,25 @@ var vis = (function(){
 socket.on('chat message', function (msg) {
 	appendMessage(msg);
 
-	if(vis() == true)
-		document.title = "ChatProject";
-	else
-		document.title = "[!] ChatProject";
-
+	if (chat.is(":visible")) {
+		if(vis() == true) {
+			document.title = "ChatProject";
+		} else {
+			document.title = "[!] ChatProject";
+			$.playSound('mp3/alert');
+		}
+	}
 });
-
-window.onfocus = function() {
-	document.title = "ChatProject";
-}
 
 socket.on('usernames', function (data) {
 	var html = '';
 	for (var i = 0; i < data.length; i++) {
-		html += data[i] + '<br/>'
+		html += data[i] + '<br/>';
 	}
 	users.html(html);
 });
 
-socket.on('disconnect', function () { // Just in case someone's internet cuts out for a short amount of time
+socket.on('disconnect', function (reason) { // Just in case someone's internet cuts out for a short amount of time
 	textarea.html(""); // Clear the chat
 	users.html(""); // Clear the userlist
 	appendMessage('<font color="#5E97FF"><b>[Server]</b> You have been disconnected</font><br/>');
@@ -114,11 +169,15 @@ socket.on('disconnect', function () { // Just in case someone's internet cuts ou
 });
 
 socket.on('load messages', function (msgs) {
-	for (var i = msgs.length - 1; i >= 0; i--) {
-		appendMessage(msgs[i].msg);
+	var txt = $("#chat-textarea");
+	if (txt.text().indexOf("You have been disconnected") !== -1) { // This way, the messages won't load in if the user is still on the div chat
+		appendMessage('<font color="#5E97FF"><b>[Server]</b> A connection has been made to the server, please reload the page</font><br/>')
+		/*setTimeout(function(){ // Automatically reload the page?
+			window.location.reload();
+		}, 5000);*/
+	} else {
+		for (var i = msgs.length - 1; i >= 0; i--) {
+			appendMessage(msgs[i].msg);
+		}
 	}
 });
-
-function fadeOut() {
-	reply.fadeOut("slow", function () { }); // So the user can no longer type
-}
