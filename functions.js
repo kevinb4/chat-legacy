@@ -1,5 +1,5 @@
 var mongoose = require('mongoose'),
-	bcrypt = require('bcrypt'),
+	bcrypt = require('bcrypt-nodejs'),
 	functions = require('./functions.js'),
 	server = '[Server] '.white.bold,
 	error = '[Error] '.red.bold,
@@ -57,7 +57,7 @@ exports.register = function (registerData, callback) {
 				callback('Your username contains invalid characters or is too long. Your username can only contain letters and numbers (1-15 characters long)');
 			} else {
 				bcrypt.genSalt(10, function(err, salt) {
-					bcrypt.hash(dataPassword, salt, function(errormsg, hash) {
+					bcrypt.hash(dataPassword, salt, null, function(errormsg, hash) {
 						/*if (error) { // it seems to always return 'undefined', even though the hash was created successfully
 							console.log(error + errormsg + ' ..at hash!' + hash);
 							callback('An error has occoured, please contact an administrator');	
@@ -85,7 +85,6 @@ exports.login = function (data, callback, socket, io, admins, users) {
 		login,
 		regex = new RegExp(["^", loginUsername, "$"].join(""), "i"); // Case insensitive search
 		userCheck = userdb.find({ username: regex });
-	console.log(regex);
 	userCheck.sort().limit(1).exec(function(errormsg, result) {
 		if (errormsg) { 
 			console.log(error + errormsg);
