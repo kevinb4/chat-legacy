@@ -9,13 +9,31 @@
 
 <body background="images/bg.png">
 	<div id="body">
+		<div id="registerForm">
+				<h1>Chat Project</h1>
+				<p>Please enter a username and a password for the chat</p>
+				<div id="input-box">
+					<input type="text" id="regUsername" autocomplete="off" placeholder="Username" />
+				</div>
+				<div id="input-box">
+					<input type="password" id="regPassword" autocomplete="off" placeholder="Password"  />
+				</div>
+				<div id="input-box">
+					<input type="password" id="regpasswordConfirm" autocomplete="off" placeholder="Confirm Password"  />
+				</div>
+				<input type="button" id="btnSubmit" class="registerSubmit" onclick="" value="Submit" />
+		</div>
 		<div id="login">
 			<h1>Chat Project</h1>
-			<p>Please enter a username below</p>
-			<div id="username-box">
+			<p>Please login below</p>
+			<div id="input-box">
 				<input type="text" id="username" autocomplete="off" placeholder="Username" />
 			</div>
-			<input id="set" class="button" type="button" onclick="" value="Set" />
+			<div id="input-box">
+				<input type="password" id="password" autocomplete="off" placeholder="Password"  />
+			</div>
+			<input type="button" id="btnLogin" class="login" onclick="" value="Login" />
+			<input type="button" id="btnRegister" class="register" onclick="" value="Register" />
 		</div>
 		<div id="chat">
 			<h1>Chat Project</h1>
