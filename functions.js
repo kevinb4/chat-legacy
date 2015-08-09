@@ -83,6 +83,8 @@ exports.register = function (registerData, callback) {
 exports.login = function (data, callback, socket, io, admins, users) {
 	var loginUsername = data.username, loginPassword = data.password,
 		login,
+		time = functions.getTime(),
+		fulldate = Date(),
 		regex = new RegExp(["^", loginUsername, "$"].join(""), "i"); // Case insensitive search
 		userCheck = userdb.find({ username: regex });
 	userCheck.sort().limit(1).exec(function(errormsg, result) {
@@ -103,6 +105,9 @@ exports.login = function (data, callback, socket, io, admins, users) {
 							} else if (dbUsername in users) {
 								callback('You are already logged in');
 							} else {
+								var time = functions.getTime(),
+									fulldate = Date(),
+									timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
 								socket.username = dbUsername;
 								users[socket.username] = socket;
 								if (dbisAdmin === true) {
@@ -110,8 +115,8 @@ exports.login = function (data, callback, socket, io, admins, users) {
 								}
 								functions.updateNicknames(io, users);
 								console.log(server + 'User has logged in - Username: ' + dbUsername);
-								io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + dbUsername + ' has joined</font><br/>');
-								saveMsg = new chat({ msg: '<font color="#5E97FF"><b>[Server]</b> ' + dbUsername + ' has joined</font><br/>' });
+								io.emit('chat message', timeText + '<font color="#5E97FF"><b>[Server]</b> ' + dbUsername + ' has joined</font><br/>');
+								saveMsg = new chat({ msg: timeText + '<font color="#5E97FF"><b>[Server]</b> ' + dbUsername + ' has joined</font><br/>' });
 								saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
 								callback('success');
 							}
@@ -129,23 +134,24 @@ exports.login = function (data, callback, socket, io, admins, users) {
 
 exports.message = function (msg, socket, io) {
 	var time = functions.getTime(),
-		fulldate = Date();
+		fulldate = Date(),
+		timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
 	if (msg.indexOf("<") == -1) { // Check if the user is trying to use html
 		var noHTML = msg; // Just so you don't get HTML in the console
 		if (noHTML.indexOf("http") >= 0) { // Check to see if there's a link
-			var noHTML = functions.getURL(noHTML);
+			noHTML = functions.getURL(noHTML);
 		}
-		io.emit('chat message', '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + noHTML + '<br/>');
+		io.emit('chat message', timeText + '<b>' + socket.username + '</b>: ' + noHTML + '<br/>');
 		console.log(('[User] ').gray.bold + time + ' ' + socket.username + ': ' + msg);
-		saveMsg = new chat({msg: '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + noHTML + '<br/>'});
+		saveMsg = new chat({msg: timeText + '<b>' + socket.username + '</b>: ' + noHTML + '<br/>'});
 	} else {
 		var htmlRemoval = msg.replace(/</g, '&lt;'); // Changes the character to show as a <, but will not work with HTML
 		if (htmlRemoval.indexOf("http") >= 0) { // Check to see if there's a link
-			var htmlRemoval = functions.getURL(htmlRemoval);
+			htmlRemoval = functions.getURL(htmlRemoval);
 		}
-		io.emit('chat message', '<font size="2" data-toggle="tooltip" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>');
+		io.emit('chat message', timeText + '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>');
 		console.log(('[User] ').gray.bold + time + ' ' + socket.username + ': ' + msg);
-		saveMsg = new chat({msg: '<font size="2" data-toggle="tooltip" title="' + fulldate + '"><' + time + '></font> ' + '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>'});
+		saveMsg = new chat({msg: timeText + '<b>' + socket.username + '</b>: ' + htmlRemoval + '<br/>'});
 	}
 	saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
 }
@@ -153,13 +159,14 @@ exports.message = function (msg, socket, io) {
 exports.adminMessage = function (msg, socket, io) {
 	var time = functions.getTime(),
 		fulldate = Date(),
-			noHTML = msg; // Just so you don't get HTML in the console
+		timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ',
+		noHTML = msg; // Just so you don't get HTML in the console
 	if (noHTML.indexOf("http") >= 0) { // Check to see if there's a link
-		var noHTML = functions.getURL(noHTML);
+		noHTML = functions.getURL(noHTML);
 	}
-	io.emit('chat message', '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ' + '<b><font color="#2471FF">[Admin] ' + socket.username + '</font></b>: ' + noHTML + '<br/>');
+	io.emit('chat message', timeText + '<b><font color="#2471FF">[Admin] ' + socket.username + '</font></b>: ' + noHTML + '<br/>');
 	console.log(('[Admin] ').blue.bold + time + ' ' + socket.username + ': ' + msg);
-	saveMsg = new chat({msg: '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ' + '<b><font color="#2471FF">[Admin] ' + socket.username + '</font></b>: ' + noHTML + '<br/>'});
+	saveMsg = new chat({msg: timeText + '<b><font color="#2471FF">[Admin] ' + socket.username + '</font></b>: ' + noHTML + '<br/>'});
 	saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
 }
 

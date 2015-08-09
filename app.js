@@ -63,13 +63,18 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('disconnect', function () {
+		var time = functions.getTime(),
+			fulldate = Date(),
+			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
 		if (!socket.username) return;
 		delete users[socket.username]; // Remove user from list
 		try {delete admins[socket.admin];} catch(err) {} // On error resume next...
+		var time = functions.getTime(),
+			fulldate = Date();
 		functions.updateNicknames(io, users);
 		console.log(server + 'User Left: ' + socket.username);
-		io.emit('chat message', '<font color="#4E7ACC"><b>[Server]</b> ' + socket.username + ' has left</font><br/>');
-		saveMsg = new chat({ msg: '<font color="#4E7ACC"><b>[Server]</b> ' + socket.username + ' has left</font><br/>' });
+		io.emit('chat message', timeText + '<font color="#4E7ACC"><b>[Server]</b> ' + socket.username + ' has left</font><br/>');
+		saveMsg = new chat({ msg: timeText + '<font color="#4E7ACC"><b>[Server]</b> ' + socket.username + ' has left</font><br/>' });
 		saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
 	});
 
@@ -77,7 +82,7 @@ io.on('connection', function (socket) {
 		if (!msg == "") { // Check to make sure a message was entered
 			if (!socket.username == "") { // Check to make sure the client has a username
 				if(msg.substr(0, 9) === '/commands') {
-					commands.commands(socket, users);
+					commands.commands(socket, admins, users);
 				} else if (msg.substr(0, 3) === '/w ') {
 					commands.whisper(msg, socket, users);
 				} else {
@@ -120,8 +125,11 @@ stdin.on('data', function (data) {
 	} else if (input.substr(0, 6) === 'admin ') { // Admin command
 		commands.cmdAdmin(input, io, users, admins);
 	} else { // Anything else that's entered is sent as a server message
-		io.emit('chat message', '<font color="#5E97FF"><b>[Server]</b> ' + input + '</font><br/>');
-		saveMsg = new chat({ msg: '<font color="#5E97FF"><b>[Server]</b> ' + input + '</font><br/>' });
+		var time = functions.getTime(),
+			fulldate = Date(),
+			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
+		io.emit('chat message', timeText + '<font color="#5E97FF"><b>[Server]</b> ' + input + '</font><br/>');
+		saveMsg = new chat({ msg: timeText + '<font color="#5E97FF"><b>[Server]</b> ' + input + '</font><br/>' });
 	}
 	try {
 		saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
