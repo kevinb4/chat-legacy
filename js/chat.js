@@ -17,10 +17,7 @@ var socket = io(),
 	send = $('#send'),
 	users = $('#online-users'),
 	progBar = $('#progressbar'),
-	salt,
-	typeRegister,
-	typeLogin,
-	pHashed;
+	isEdit = false;
 
 function login() {
 	var loginDetails = { username : txtUsername.val(), password : txtPassword.val() }
@@ -37,8 +34,14 @@ function login() {
 }
 
 function sendMessage() {
-	socket.emit('chat message', reply.val()); // Emit the message
-	reply.val(""); // Clear the reply box
+	if (isEdit === true) {
+		socket.emit('edit message', reply.val());
+		reply.val(""); // Clear the reply box
+		isEdit = false;
+	} else {
+		socket.emit('chat message', reply.val()); // Emit the message
+		reply.val(""); // Clear the reply box
+	}
 }
 
 function appendMessage(msg) {
@@ -65,7 +68,7 @@ window.onfocus = function() {
 
 $.extend({
 	playSound: function(){
-		return $("<embed src='"+arguments[0]+".mp3' hidden='true' autostart='true' loop='false' height='0' width='0' class='playSound'>" + "<audio autoplay='autoplay' style='display:none;' controls='controls'><source src='"+arguments[0]+".mp3' /><source src='"+arguments[0]+".ogg' /></audio>").appendTo('body');
+		return $("<embed src='" + arguments[0] + ".mp3' hidden='true' autostart='true' loop='false' height='0' width='0' class='playSound'>" + "<audio autoplay='autoplay' style='display:none;' controls='controls'><source src='"+arguments[0]+".mp3' /><source src='"+arguments[0]+".ogg' /></audio>").appendTo('body');
 	}
 });
 
@@ -111,14 +114,25 @@ btnSubmit.click(function () {
 	}
 });
 
-send.click(function () { // Clicking the send button
+send.click(function() { // Clicking the send button
 	sendMessage();
 });
 
-reply.keypress(function (e) { // Checks for keys being pressed
+reply.keypress(function(e) { // Checks for keys being pressed
 	if (e.which == 13) { // Pressing Enter
 		sendMessage();
 	}
+});
+
+reply.keydown(function(e) {
+	switch(e.which) {
+		case 38:
+			socket.emit('get prev msg');
+		break;
+
+		default: return;
+	}
+	e.preventDefault();
 });
 
 var vis = (function(){
@@ -151,6 +165,24 @@ socket.on('chat message', function (msg) {
 			$.playSound('mp3/alert');
 		}
 	}
+});
+
+socket.on('rcv prev msg', function (msg) {
+	if (!(msg == null)) {
+		isEdit = true;
+		reply.val(msg);
+	}
+});
+
+socket.on('edited message', function(data) {
+	document.getElementById(data.dataID).innerHTML = data.msg;
+});
+
+socket.on('delete message', function(data) {
+	var element = document.getElementById(data);
+	element.outerHTML = "";
+	delete element;
+	chatbox.perfectScrollbar('update');
 });
 
 socket.on('usernames', function (data) {

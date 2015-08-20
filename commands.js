@@ -15,7 +15,12 @@ var functions = require('./functions.js'),
 }),
 	schema = mongoose.Schema({
 	msg: String,
-	date: {type: Date, default: Date.now}
+	txtID: String,
+	rawMsg: String,
+	deleted: Boolean,
+	timeText: String,
+	username: String,
+	date: { type: Date, default: Date.now }
 });
 
 module.exports = {
@@ -24,7 +29,7 @@ module.exports = {
 	// User
 	//-------------------
 
-	commands: function (socket, admins, users) { // Shows a list of commands
+	commands: function(socket, admins, users) { // Shows a list of commands
 		var time = functions.getTime(),
 			fulldate = Date(),
 			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
@@ -40,7 +45,7 @@ module.exports = {
 		}
 	},
 
-	whisper: function (msg, socket, users) { // Sends a private message to another user (isn't logged)
+	whisper: function(msg, socket, users) { // Sends a private message to another user (isn't logged)
 		msg = msg.substr(3); // Remove the '/w '
 		var time = functions.getTime(),
 			fulldate = Date(),
@@ -65,7 +70,7 @@ module.exports = {
 	// Admin
 	//-------------------
 
-	adminsMsg: function (command, socket, io) { // Sends a message as the server
+	adminsMsg: function(command, socket, io) { // Sends a message as the server
 		var time = functions.getTime(),
 			fulldate = Date(),
 			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
@@ -76,7 +81,7 @@ module.exports = {
 		saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
 	},
 
-	adminKick: function (command, socket, io, users) { // Kicks a user
+	adminKick: function(command, socket, io, users) { // Kicks a user
 		var time = functions.getTime(),
 			fulldate = Date(),
 			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
@@ -92,7 +97,7 @@ module.exports = {
 		}
 	},
 
-	adminBan: function (command, socket, io, users) { // Bans a user (with a reason)
+	adminBan: function(command, socket, io, users) { // Bans a user (with a reason)
 		var time = functions.getTime(),
 			fulldate = Date(),
 			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
@@ -128,7 +133,7 @@ module.exports = {
 		}
 	},
 
-	adminUnban: function (command, socket, users) { // Unbans a user
+	adminUnban: function(command, socket, users) { // Unbans a user
 		var time = functions.getTime(),
 			fulldate = Date(),
 			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
@@ -154,11 +159,29 @@ module.exports = {
 		});
 	},
 
+	adminDelete: function(command, socket, io, users) {
+		var messageID = command.substring(8),
+			time = functions.getTime(),
+			fulldate = Date(),
+			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ',
+			query = chat.find({ txtID: messageID });
+		query.sort().limit(1).exec(function(errormsg, msg) { // Make sure the message exists
+			if (errormsg) console.log(error + errormsg);
+			if (msg.length == 1) {
+				chat.collection.remove( { txtID: messageID }, 1 ); // Find the ID and delete the entry
+				io.emit('delete message', messageID);
+				console.log(server + socket.username + ' has deleted message "' + msg[0].rawMsg + '"');
+			} else {
+				users[socket.username].emit('chat message', timeText + '<font color="#5E97FF"><b>[Server]</b> Message ID ' + messageID + ' was not found</font><br/>');
+			}
+		});
+	},
+
 	//---Commands--------
 	// CMD
 	//-------------------
 
-	cmdKick: function (input, io, users) { // Kicks a user
+	cmdKick: function(input, io, users) { // Kicks a user
 		var time = functions.getTime(),
 			fulldate = Date(),
 			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
@@ -173,7 +196,7 @@ module.exports = {
 		}
 	},
 
-	cmdBan: function (input, io, users) { // Bans a user (with a reason)
+	cmdBan: function(input, io, users) { // Bans a user (with a reason)
 		var time = functions.getTime(),
 			fulldate = Date(),
 			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
@@ -209,7 +232,7 @@ module.exports = {
 		}
 	},
 
-	cmdUnban: function (input) { // Unbans a user
+	cmdUnban: function(input) { // Unbans a user
 		name = input.substr(6);
 		var regex = new RegExp(["^", name, "$"].join(""), "i"), // Case insensitive search
 			userCheck = userdb.find({ username: regex });
@@ -231,7 +254,7 @@ module.exports = {
 		});
 	},
 
-	cmdAdmin: function (input, io, users, admins) { // Sets or removes a user to the admin group
+	cmdAdmin: function(input, io, users, admins) { // Sets or removes a user to the admin group
 		var time = functions.getTime(),
 			fulldate = Date(),
 			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';

@@ -22,7 +22,12 @@ mongoose.connect('mongodb://localhost/chat', function(errormsg){
 
 var schema = mongoose.Schema({
 	msg: String,
-	date: {type: Date, default: Date.now}
+	txtID: String,
+	rawMsg: String,
+	deleted: Boolean,
+	timeText: String,
+	username: String,
+	date: { type: Date, default: Date.now }
 }),
 	userschema = mongoose.Schema({
 	username: String,
@@ -47,7 +52,7 @@ app.get('/', function (req, res) {
 var commands = require('./commands.js'),
 	functions = require('./functions.js');
 
-io.on('connection', function (socket) {
+io.on('connection', function(socket) {
 	var query = chat.find({});
 	query.sort('-date').limit(50).exec(function(errormsg, msgs) { // Load the last 50 messages in order
 		if (errormsg) console.log(error + errormsg);
@@ -58,11 +63,11 @@ io.on('connection', function (socket) {
 		functions.register(registerData, callback);
 	});
 
-	socket.on('user login', function (data, callback) {
+	socket.on('user login', function(data, callback) {
 		functions.login(data, callback, socket, io, admins, users);
 	});
 
-	socket.on('disconnect', function () {
+	socket.on('disconnect', function() {
 		var time = functions.getTime(),
 			fulldate = Date(),
 			timeText = '<font size="2" data-toggle="tooltip" data-placement="auto-right" title="' + fulldate + '"><' + time + '></font> ';
@@ -78,7 +83,44 @@ io.on('connection', function (socket) {
 		saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
 	});
 
-	socket.on('chat message', function (msg) {
+	socket.on('get prev msg', function(msg, callback) {
+		var query = chat.find({ username: socket.username });
+		query.sort('-date').limit(1).exec(function(errormsg, msg) { // Load the last 50 messages in order
+			if (errormsg) console.log(error + errormsg);
+			try {
+				if (!msg[0].deleted === true) {
+					users[socket.username].emit('rcv prev msg', msg[0].rawMsg);
+				}
+			} catch(errormsg) {
+				users[socket.username].emit('rcv prev msg', null);
+			}
+		});
+	});
+
+	socket.on('edit message', function(data, callback) {
+		var query = chat.find({ username: socket.username });
+		query.sort('-date').limit(1).exec(function(errormsg, msg) {
+			if (errormsg) console.log(error + errormsg);
+			if (!data == "") {
+				fullMsg = functions.editMessage(socket, data, admins, msg[0].timeText);
+				var msgData = { msg: fullMsg, dataID: msg[0].txtID }
+				chat.update({ rawMsg: msg[0].rawMsg }, { rawMsg: data , msg: '<span id="' + msg[0].txtID + '">' + fullMsg + '<br/></span>' }, function(err, raw) { if (err) return console.log(err) });
+				io.emit('edited message', msgData);
+			}else {
+				if (socket.username in admins) {
+					chat.update({ rawMsg: msg[0].rawMsg }, { rawMsg: data , msg: '<span id="' + msg[0].txtID + '">' + msg[0].timeText + '<b><font color="#2471FF">[Admin] ' + socket.username + '</font></b>: ' +'<i>This message has been deleted</i><br/></span>', deleted: true }, function(err, raw) { if (err) return console.log(err) });
+					var msgData = { msg: '<span id="' + msg[0].txtID + '">' + msg[0].timeText + '<b><font color="#2471FF">[Admin] ' + socket.username + '</font></b>: ' +'<i>This message has been deleted</i><br/></span>', dataID: msg[0].txtID }
+					io.emit('edited message', msgData);
+				} else {
+					chat.update({ rawMsg: msg[0].rawMsg }, { rawMsg: data , msg: '<span id="' + msg[0].txtID + '">' + msg[0].timeText + '<b>' + socket.username + '</b>: ' +'<i>This message has been deleted</i><br/></span>', deleted: true }, function(err, raw) { if (err) return console.log(err) });
+					var msgData = { msg: '<span id="' + msg[0].txtID + '">' + msg[0].timeText + '<b>' + socket.username + '</b>: ' +'<i>This message has been deleted</i><br/></span>', dataID: msg[0].txtID }
+					io.emit('edited message', msgData);
+				}
+			}
+		});
+	});
+
+	socket.on('chat message', function(msg) {
 		if (!msg == "") { // Check to make sure a message was entered
 			if (!socket.username == "") { // Check to make sure the client has a username
 				if(msg.substr(0, 9) === '/commands') {
@@ -95,6 +137,8 @@ io.on('connection', function (socket) {
 							commands.adminBan(msg, socket, io, users);
 						} else if (msg.substr(0, 7) === '/unban ') {
 							commands.adminUnban(msg, socket, users);
+						} else if (msg.substr(0, 8) === '/delete ') {
+							commands.adminDelete(msg, socket, io, users);
 						} else {
 							functions.adminMessage(msg, socket, io);
 						}
@@ -110,7 +154,7 @@ io.on('connection', function (socket) {
 var stdin = process.stdin, stdout = process.stdout;
 
 stdin.resume();
-stdin.on('data', function (data) {
+stdin.on('data', function(data) {
 	var input = data.toString().trim(); // Take out any unecessary spaces
 	if (input == 'shutdown') { // Shutdown command
 		console.log(server + 'Shutting down...');
@@ -132,6 +176,6 @@ stdin.on('data', function (data) {
 		saveMsg = new chat({ msg: timeText + '<font color="#5E97FF"><b>[Server]</b> ' + input + '</font><br/>' });
 	}
 	try {
-		saveMsg.save(function (errormsg) { if (errormsg) console.log(error + errormsg);	});
+		saveMsg.save(function(errormsg) { if (errormsg) console.log(error + errormsg);	});
 	} catch (err) {} // no messages to save (command didn't save a message)
 });

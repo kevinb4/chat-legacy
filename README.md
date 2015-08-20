@@ -42,10 +42,9 @@ A test server has been setup here http://chatproject.ddns.net:3000/
 - [x] Add Admin/Mod roles
 - [x] Add login system
 - [x] Add sound notifications
+- [x] Add "edit previous message" feature
 - [ ] Add an options menu
 - [ ] Add status (user idle, user is typing..., etc)
 - [ ] Add formatting
-- [ ] Add 'read messages'
-- [ ] Add edit previous message feature
 - [ ] Write a client in VB.net
 - [ ] Write an andriod app
