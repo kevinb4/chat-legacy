@@ -1,6 +1,9 @@
 #Chat
 This is a basic chat that will be improved over time... check out the ToDo list below.
 
+#Test Server
+A test server has been setup here http://chatproject.noip.me:3000/
+
 #Requirements
 - Node.js must be installed (found here http://nodejs.org/)
 - MongoDB must be installed and running (found here https://www.mongodb.org/)
@@ -21,9 +24,6 @@ MongoDB should now be running. If you run into any issues, refer to MongoDB's do
 
 #Github Errors
 If you are getting "Filename is too long" error, run `git config --system core.longpaths true` in git shell.
-
-#Test Server
-A test server has been setup here http://chatproject.ddns.net:3000/
 
 #ToDo List
 - [x] Remake UI/Rewrite code from socket.io tutorial
