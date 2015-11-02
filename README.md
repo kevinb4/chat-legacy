@@ -1,3 +1,6 @@
+#Legacy
+After a few months of working on the chat here and there, I have modifed way too much to pull into one commit, or even small commits. I have decided to clean the code a bit and make a fresh start. Though, the main reason for this change is that the new chat isn't compatible with the legacy chat.
+
 #Chat
 This is a basic chat that will be improved over time... check out the ToDo list below.
 
